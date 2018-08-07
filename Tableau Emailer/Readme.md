@@ -47,16 +47,13 @@ The message body of the e-mail will be based on the templates files you select. 
 
 An HTML template can be as plain as:
 
-[code language='html']
-<html>
-<head></head>
+	<html>
+	<head></head>
 
-<body>
+	<body>
 
-<p>Here is your e-mail
-</body></html>
-
-[/code]
+	<p>Here is your e-mail
+	</body></html>`
 
 
 Currently there is no type of substitution of phrases within these templates.
