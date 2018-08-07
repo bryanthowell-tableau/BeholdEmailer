@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Collections.Specialized;
 
 namespace Behold_Emailer
 {
@@ -43,12 +37,10 @@ namespace Behold_Emailer
                 fstyle = FontStyle.Regular;
             }
             Font settings_font = new Font(watermark_settings["font_name"], Int32.Parse(watermark_settings["font_size"]), fstyle);
-   
         }
 
         private void Page_Number_Watermark_Load(object sender, EventArgs e)
         {
-
         }
 
         protected override SerializableStringDictionary save_settings(SerializableStringDictionary watermark_settings)
@@ -61,7 +53,6 @@ namespace Behold_Emailer
                 watermark_settings["text"] = pageNumbersPrefix.Text;
                 watermark_settings["show_total"] = pageNumbersShowTotal.Text;
                 return watermark_settings;
-
             }
         }
 
@@ -84,7 +75,7 @@ namespace Behold_Emailer
             {
                 fstyle = FontStyle.Regular;
             }
-            fontDialog1.Font = new Font(pageNumberFontName.Text,  float.Parse(pageNumberFontSize.Text), fstyle);
+            fontDialog1.Font = new Font(pageNumberFontName.Text, float.Parse(pageNumberFontSize.Text), fstyle);
             if (fontDialog1.ShowDialog() != DialogResult.Cancel)
             {
                 pageNumberFontSize.Text = Math.Round(fontDialog1.Font.SizeInPoints, 0).ToString();

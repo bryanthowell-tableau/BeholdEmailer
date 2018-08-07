@@ -1,18 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Collections.Specialized;
 
 namespace Behold_Emailer
 {
     public partial class Text_Watermark : Watermark_Edit
     {
-        public Text_Watermark(string caller_name): base(caller_name)
+        public Text_Watermark(string caller_name) : base(caller_name)
         {
             InitializeComponent();
         }
@@ -33,7 +27,7 @@ namespace Behold_Emailer
             }
             else if (wmFontStyle.Text == "Bold")
             {
-                fstyle = FontStyle.Bold ;
+                fstyle = FontStyle.Bold;
             }
             else if (wmFontStyle.Text == "Italic")
             {
@@ -52,7 +46,8 @@ namespace Behold_Emailer
             InitializeComponent();
         }
 
-        protected override SerializableStringDictionary save_settings(SerializableStringDictionary watermark_settings){
+        protected override SerializableStringDictionary save_settings(SerializableStringDictionary watermark_settings)
+        {
             watermark_settings["watermark_type"] = "text";
             watermark_settings["font_name"] = wmFontName.Text;
             watermark_settings["font_size"] = wmFontSize.Text;
@@ -61,7 +56,6 @@ namespace Behold_Emailer
             watermark_settings["add_timestamp"] = wmTimestamp.Text;
             return watermark_settings;
         }
-
 
         private void setFont_Click(object sender, EventArgs e)
         {
@@ -72,7 +66,7 @@ namespace Behold_Emailer
             }
             else if (wmFontStyle.Text == "Bold")
             {
-                fstyle = FontStyle.Bold ;
+                fstyle = FontStyle.Bold;
             }
             else if (wmFontStyle.Text == "Italic")
             {

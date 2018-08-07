@@ -1,122 +1,124 @@
-﻿using System;
+﻿using Npgsql;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Windows.Forms;
 using System.Xml;
-using System.Runtime.Serialization.Json;
-using Npgsql;
-using System.Diagnostics;
-using System.Net;
-using System.Web;
 
 namespace Behold_Emailer
 {
-    class Tabcmd
+    internal class Tabcmd
     {
-        private string tabcmd_folder;
+        private string tabcmdFolderLocation;
         private string username;
         private string password;
-        private string _site;
-        public string site {
-            get { return _site; }
-            set { if (value.ToLower() == "default") { _site = "default"; } else { _site = value; } }
-        }
-        public string tableau_server_url;
+        private string site;
+        private string repositoryPassword;
+        private string userSessionId;
+        private string userAuthenticationToken;
+        private string tabcmdConfigLocation;
+        private string tabcmdConfigFilename;
 
-        private string repository_pw;
-        private string user_session_id;
-        private string user_auth_token;
-        private string tabcmd_config_location;
-        private string tabcmd_config_filename;
-        public Logger logger;
-        public TableauRepository repository;
-
-        public Tabcmd(string tabcmd_folder, string tableau_server_url,
-            string username, string password, string site, string repository_password, 
-            string tabcmd_config_location)
+        public string Site
         {
-            // Tabcmd program configurations
-            this.tabcmd_folder = tabcmd_folder;
-            this.tabcmd_config_filename = "tabcmd-session.xml";
-            this.tabcmd_config_location = tabcmd_config_location;
-            // Open the configuration file and test whether it resembles the real file
-            try {
-                StreamReader tabcmd_config = new StreamReader(tabcmd_config_location + tabcmd_config_filename);
+            get { return site; }
+            set { if (value.ToLower() == "default") { site = "default"; } else { site = value; } }
+        }
+
+        public string TableauServerUrl;
+        public SimpleLogger Logger;
+        public TableauRepository Repository;
+
+        public Tabcmd(string tabcmdFolderLocation, string tableauServerUrl,
+            string username, string password, string site, string repositoryPassword,
+            string tabcmdConfigurationFileLocation)
+        {
+            // tabcmd program configurations are stored within an XML file
+            this.tabcmdFolderLocation = tabcmdFolderLocation;
+            this.tabcmdConfigFilename = "tabcmd-session.xml";
+            this.tabcmdConfigLocation = tabcmdConfigurationFileLocation;
+            // Open the configuration file and test whether it resembles the real file.
+            // Should really replace with XML reader to make this better, but in the end this part needs to be deprecated for the APIs
+            try
+            {
+                StreamReader tabcmdConfigurationFile = new StreamReader(tabcmdConfigurationFileLocation + tabcmdConfigFilename);
                 // Read first line
-                tabcmd_config.ReadLine();
+                tabcmdConfigurationFile.ReadLine();
                 // Read second line, should be <session>. May come up with better test
-                string second_line = tabcmd_config.ReadLine();
-                if(second_line.Contains("<session>") == false){
+                string second_line = tabcmdConfigurationFile.ReadLine();
+                if (second_line.Contains("<session>") == false)
+                {
                     throw new ConfigurationException("tabcmd-session.xml file information is incorrect. File is not tabcmd-session.xml");
                 }
-                tabcmd_config.Close();
+                tabcmdConfigurationFile.Close();
             }
-            catch(IOException){
-
+            catch (IOException)
+            {
                 throw new ConfigurationException("tabcmd-config file information is incorrect. Config file could not be opened");
             }
 
             this.username = username;
             this.password = password;
-            this.site = site;
-            this.tableau_server_url = tableau_server_url;
-            
-            this.repository_pw = repository_password;
-            this.repository = new TableauRepository(this.tableau_server_url, this.repository_pw, "readonly");
+            this.Site = site;
+            this.TableauServerUrl = tableauServerUrl;
+
+            this.repositoryPassword = repositoryPassword;
+            this.Repository = new TableauRepository(this.TableauServerUrl, this.repositoryPassword, "readonly");
 
             // This preps tabcmd for subsequent calls
-            this.log("Preping the tabcmd admin session");
-            this.create_tabcmd_admin_session();
-            this.logger = null;
+            this.Log("Preping the tabcmd admin session");
+            this.CreateTabcmdAdminSession();
+            this.Logger = null;
         }
 
         public Tabcmd(string tabcmd_folder, string tableau_server_url, string username, string password,
             string site, string tabcmd_config_location, TableauRepository TableauRepository)
         {
-            this.tabcmd_folder = tabcmd_folder;
+            this.tabcmdFolderLocation = tabcmd_folder;
             this.username = username;
             this.password = password;
-            this.site = site;
-            this.tableau_server_url = tableau_server_url;
-            this.tabcmd_config_filename = "tabcmd-session.xml";
-            this.tabcmd_config_location = tabcmd_config_location;
+            this.Site = site;
+            this.TableauServerUrl = tableau_server_url;
+            this.tabcmdConfigFilename = "tabcmd-session.xml";
+            this.tabcmdConfigLocation = tabcmd_config_location;
 
-            this.repository = TableauRepository;
+            this.Repository = TableauRepository;
 
             // This preps tabcmd for subsequent calls
-            this.log("Preping the tabcmd admin session");
-            this.create_tabcmd_admin_session();
-            this.logger = null;
+            this.Log("Preping the tabcmd admin session");
+            this.CreateTabcmdAdminSession();
+            this.Logger = null;
         }
 
         public Tabcmd(string tabcmd_folder, string tableau_server_url, string username, string password,
-            string site, string tabcmd_config_location, TableauRepository TableauRepository, Logger logger)
+            string site, string tabcmd_config_location, TableauRepository TableauRepository, SimpleLogger logger)
         {
-            this.tabcmd_folder = tabcmd_folder;
+            this.tabcmdFolderLocation = tabcmd_folder;
             this.username = username;
             this.password = password;
-            this.site = site;
-            this.tableau_server_url = tableau_server_url;
+            this.Site = site;
+            this.TableauServerUrl = tableau_server_url;
 
-            this.tabcmd_config_filename = "tabcmd-session.xml";
-            this.tabcmd_config_location = tabcmd_config_location;
+            this.tabcmdConfigFilename = "tabcmd-session.xml";
+            this.tabcmdConfigLocation = tabcmd_config_location;
 
-            this.logger = logger;
+            this.Logger = logger;
 
-            this.repository = TableauRepository;
+            this.Repository = TableauRepository;
 
             // This preps tabcmd for subsequent calls
-            this.log(String.Format("Preping the tabcmd admin session for site {0}", this.site));
-            this.create_tabcmd_admin_session();
-            
+            this.Log(String.Format("Preping the tabcmd admin session for site {0}", this.Site));
+            this.CreateTabcmdAdminSession();
         }
 
         // Need to add no-certcheck when https
-        private string add_no_certcheck()
+        private string CreateNoCertCheckParameter()
         {
-            if (this.tableau_server_url.ToLower().Contains("https"))
+            if (this.TableauServerUrl.ToLower().Contains("https"))
             {
                 return "--no-certcheck";
             }
@@ -126,186 +128,222 @@ namespace Behold_Emailer
             }
         }
 
-
-        public void log(string l)
+        public void Log(string LogLine)
         {
-            if (this.logger != null)
+            if (this.Logger != null)
             {
-                this.logger.Log(l);
+                this.Logger.Log(LogLine);
             }
         }
 
-        // All the build_x_cmd methods are just for convenience of wrapping tabcmd
-        public string build_directory_cmd()
+        // All the build* methods are just for convenience of wrapping tabcmd
+
+        // Always change to the directory that tabcmd is located in, including the drive letter change
+        // This is actually just a standard batch command, nothing tabcmd specific
+        public string BuildDirectoryChangeCommand()
         {
-            var drive_letter = this.tabcmd_folder.Substring(0, 1);
-            return String.Format("{0}: \ncd {1}", drive_letter, this.tabcmd_folder);
+            var driveLetter = this.tabcmdFolderLocation.Substring(0, 1);
+            return String.Format("{0}: \ncd {1}", driveLetter, this.tabcmdFolderLocation);
         }
-     
-        public string build_login_cmd(string pw_filename)
-        { 
+
+        /*
+         * For the tabcmd technique, you are always logging in using an admin username and password, then swapping the session
+         * in the tabcmd config XML file to use the session that you established using trusted tickets
+         */
+
+        public string BuildLoginCommand(string TemporaryPasswordStorageFilename)
+        {
             try
-            {   // Open the text file for writing using File
-                File.WriteAllText(pw_filename, this.password);
-            
+            {   // Writes the password to a temporary file so that the session can be logged in
+                File.WriteAllText(TemporaryPasswordStorageFilename, this.password);
             }
             catch (Exception e)
             {
                 Console.WriteLine("The password file could not be read:");
                 Console.WriteLine(e.Message);
             }
-            string cmd;
-            if ( this.site.ToLower() == "default"){
-                cmd = String.Format("tabcmd login -s {0} -u {1} --password-file \"{2}\" {3}", this.tableau_server_url,
-                    this.username, pw_filename, this.add_no_certcheck());
-            }
-            else {
-                 cmd = String.Format("tabcmd login -s {0} -t {1} -u {2} --password-file \"{3}\" {4}", this.tableau_server_url,
-                     this.site, this.username, pw_filename, this.add_no_certcheck());
-            }
-            return cmd;
-        }
-
-        public string build_export_cmd(string export_type, string filename, string view_url, Dictionary<string, string> view_filter_dictionary,
-            bool refresh)
-        {
-            string cmd;
-            string[] allowable_export_types = new string[4] { "pdf", "csv", "png", "fullpdf" };
-
-            if (view_url == "")
+            string batchCommandText;
+            if (this.Site.ToLower() == "default")
             {
-                throw new ConfigurationException("No view_url was provided");
-            }
-
-            if (allowable_export_types.Contains(export_type.ToLower()) == false)
-            {
-                // Exception
-            }
-            string additional_url_params = "";
-            if (view_filter_dictionary != null)
-            {
-                
-               // WebUtility.HtmlEncode
-                var first_param = 0;
-                foreach (KeyValuePair<string, string> pair in view_filter_dictionary)
-                {
-                    if (first_param == 0){
-                        additional_url_params += "?";
-                        first_param++;
-                    }
-                    else {
-                        additional_url_params += "&";
-                    }
-                    // Gotta double the % sign because batch files use %2 as a replacement token.
-                    additional_url_params += Uri.EscapeUriString(pair.Key).Replace("%","%%") + "=" + (pair.Value);
-                }
-
-                if (refresh == true)
-                {
-                    additional_url_params += "&:refresh";
-                }
-            }
-            else if (view_filter_dictionary == null)
-            {
-                if (refresh == true)
-                {
-                    additional_url_params += "?:refresh";
-                }
-            }
-            view_url += additional_url_params;
-            cmd = String.Format("tabcmd export \"{0}\" --filename \"{1}\" --{2} {3}",
-                view_url, filename, export_type, this.add_no_certcheck());
-            // Additional parameters for export options
-            string extra_params = "--pagelayout {4} --pagesize {5} --width {6} --height {7}";
-            return cmd;
-        }
-
-        // You need to log in to tabcmd successfully with admin privileges the first time
-        private void create_tabcmd_admin_session(){
-            this.log("Creating a tabcmd admin session");
-            string pw_filename = this.tabcmd_folder + "sh3zoy2lya.txt";
-            string[] cmds = new string[2];
-            
-            cmds[0] = this.build_directory_cmd();
-            cmds[1] = this.build_login_cmd(pw_filename);
-            try
-            {
-                File.WriteAllLines("login.bat", cmds);
-            }
-            catch(IOException)
-            {
-                throw new ConfigurationException("Could not write login.bat file, please restart and check all files");
-            }
-            var results = Cmd.Run("login.bat", true);
-            // Check tabcmd results?
-
-            this.log(results[0]);
-            this.log(results[1]);
-
-            // Clear admin password file after each run
-            File.Delete(pw_filename);
-            File.Delete("login.bat");
-        }
-
-        public string create_export(string export_type, string view_location,
-            Dictionary<string, string> view_filter_dictionary, string user_to_impersonate,
-            string filename)
-        {
-
-            if (view_location == "")
-            {
-                throw new ConfigurationException("view_location is not specified");
-            }
-
-            if (String.Equals(user_to_impersonate, "") == false)
-            {
-                this.create_session_and_configure_tabcmd_for_user(user_to_impersonate, view_location);
-            }
-
-            string[] cmds = new string[2];
-            cmds[0] = this.build_directory_cmd();
-            
-            
-            string saved_filename;
-            if (String.Equals(export_type.ToLower(), "fullpdf"))
-            {
-                saved_filename = String.Format("{0}.{1}", filename, "pdf");
+                batchCommandText = String.Format("tabcmd login -s {0} -u {1} --password-file \"{2}\" {3}", this.TableauServerUrl,
+                    this.username, TemporaryPasswordStorageFilename, this.CreateNoCertCheckParameter());
             }
             else
             {
-                saved_filename = String.Format("{0}.{1}", filename, export_type);
+                batchCommandText = String.Format("tabcmd login -s {0} -t {1} -u {2} --password-file \"{3}\" {4}", this.TableauServerUrl,
+                    this.Site, this.username, TemporaryPasswordStorageFilename, this.CreateNoCertCheckParameter());
+            }
+            return batchCommandText;
+        }
+
+        public string BuildExportCommand(string exportFileExtension, string filename, string viewUrl, Dictionary<string, string> viewFiltersMapping,
+            bool refresh)
+        {
+            string batchCommandText;
+
+            // If no viewUrl, throw a configuration exception
+            if (viewUrl == "")
+            {
+                throw new ConfigurationException("No viewUrl was provided");
+            }
+
+            // Check to make sure the system passsed in one of the acceptable types
+            string[] allowableExportTypes = new string[4] { "pdf", "csv", "png", "fullpdf" };
+            if (allowableExportTypes.Contains(exportFileExtension.ToLower()) == false)
+            {
+                // Exception
+            }
+
+            string additionalUrlParameters = "";
+
+            // viewFiltersMapping converts Key=>Value dictionary to URL parameters with batch file encoding
+            if (viewFiltersMapping != null)
+            {
+                // WebUtility.HtmlEncode
+                var firstParameter = 0;
+                foreach (KeyValuePair<string, string> pair in viewFiltersMapping)
+                {
+                    if (firstParameter == 0)
+                    {
+                        additionalUrlParameters += "?";
+                        firstParameter++;
+                    }
+                    else
+                    {
+                        additionalUrlParameters += "&";
+                    }
+                    // Gotta double the % sign because batch files use %2 as a replacement token.
+                    additionalUrlParameters += Uri.EscapeUriString(pair.Key).Replace("%", "%%") + "=" + (pair.Value);
+                }
+
+                if (refresh == true)
+                {
+                    additionalUrlParameters += "&:refresh";
+                }
+            }
+            else if (viewFiltersMapping == null)
+            {
+                if (refresh == true)
+                {
+                    additionalUrlParameters += "?:refresh";
+                }
+            }
+            viewUrl += additionalUrlParameters;
+            batchCommandText = String.Format("tabcmd export \"{0}\" --filename \"{1}\" --{2} {3}",
+                viewUrl, filename, exportFileExtension, this.CreateNoCertCheckParameter());
+
+            // Additional parameters for export options
+            string extraCommandParameters = "--pagelayout {4} --pagesize {5} --width {6} --height {7}";
+
+            return batchCommandText;
+        }
+
+        // You need to log in to tabcmd successfully with admin privileges the first time
+        private void CreateTabcmdAdminSession()
+        {
+            this.Log("Creating a tabcmd admin session");
+
+            string[] cmds = new string[2];
+
+            // Change directory command necessary to get to tabcmd directory to run the batch file
+            cmds[0] = this.BuildDirectoryChangeCommand();
+
+            //var changeResults = Cmd.Run(cmds[0], true);
+            //this.Log(changeResults[0]);
+            //this.Log(changeResults[1]);
+
+            // The password gets decrypted from the storage, then stored temporarily in the clear to disk
+            // This is necessary for tabcmd to use a password file
+            string temporaryPasswordStorageFilename = this.tabcmdFolderLocation + "sh3zoy2lya.txt";
+            cmds[1] = this.BuildLoginCommand(temporaryPasswordStorageFilename);
+
+            // Change to the tabcmd directory first, before writing
+
+            try
+            {
+                File.WriteAllLines(this.tabcmdFolderLocation + "login.bat", cmds);
+            }
+            catch (IOException)
+            {
+                throw new ConfigurationException("Could not write login.bat file, please restart and check all files");
+            }
+
+            string[] loginCmds = new string[2];
+            loginCmds[0] = cmds[0];
+            loginCmds[1] = "login.bat";
+            // There are going to be multiple lines returned, accessible as an array
+            var results = Cmd.Run(loginCmds, true);
+            // Check tabcmd results?
+
+            this.Log(results[0]);
+            this.Log(results[1]);
+
+            // Clear admin password file after each run
+            File.Delete(temporaryPasswordStorageFilename);
+            File.Delete(this.tabcmdFolderLocation + "login.bat");
+        }
+
+        public string CreateExportFile(string export_type, string viewLocation,
+            Dictionary<string, string> viewFilterMapping, string usernameToImpersonate,
+            string FilenameToSaveAs)
+        {
+            if (viewLocation == "")
+            {
+                throw new ConfigurationException("viewLocation is not specified");
+            }
+
+            if (String.Equals(usernameToImpersonate, "") == false)
+            {
+                this.CreateSessionAndConfigureTabcmdForUser(usernameToImpersonate, viewLocation);
+            }
+
+            string[] cmds = new string[2];
+            cmds[0] = this.BuildDirectoryChangeCommand();
+
+            string savedFilename;
+            if (String.Equals(export_type.ToLower(), "fullpdf"))
+            {
+                savedFilename = String.Format("{0}.{1}", FilenameToSaveAs, "pdf");
+            }
+            else
+            {
+                savedFilename = String.Format("{0}.{1}", FilenameToSaveAs, export_type);
             }
 
             //cmds[1] = String.Format("del \"{0}\"", saved_filename);
-            cmds[1] = this.build_export_cmd(export_type, saved_filename, view_location, view_filter_dictionary, false);
-            
+            cmds[1] = this.BuildExportCommand(export_type, savedFilename, viewLocation, viewFilterMapping, false);
+
             try
             {
-                File.WriteAllLines("export.bat", cmds);
+                File.WriteAllLines(this.tabcmdFolderLocation + "export.bat", cmds);
             }
             catch (IOException)
             {
                 MessageBox.Show("Could not write export.bat file");
             }
 
-            string full_file_location = this.tabcmd_folder + saved_filename;
-            this.log(String.Format("Writing to file {0}", full_file_location));
-            
+            string full_file_location = this.tabcmdFolderLocation + savedFilename;
+            this.Log(String.Format("Writing to file {0}", full_file_location));
+
             // Run the commands
-            var results = Cmd.Run("export.bat", true);
-            
-            this.log(results[0]);
-            this.log(results[1]);
+            // DIrectory change first, just in case you are in a weird place
+            string[] allCmds = new string[2];
+            allCmds[0] = cmds[0];
+            allCmds[1] = "export.bat";
+            var results = Cmd.Run(allCmds, true);
+
+            this.Log(results[0]);
+            this.Log(results[1]);
             if (results[1].Contains("===== Saved"))
             {
-                this.log("Export file generated correctly");
+                this.Log("Export file generated correctly");
             }
             else
             {
                 throw new ConfigurationException("Export command failed, most likely configuration issue.");
             }
 
-            File.Delete("export.bat");
+            File.Delete(this.tabcmdFolderLocation + "export.bat");
             return full_file_location;
         }
 
@@ -316,44 +354,48 @@ namespace Behold_Emailer
          * switching to the correct user
          */
 
-        /* 
+        /*
          * tabcmd keeps a session history, stored within its XML configuration file.
          * Rather than logging into tabcmd again, once there is a session history, we simply substitute in the
          * impersonated user's info directly into the XML.
-         */ 
-        private void configure_tabcmd_config_for_user_session(string user)
+         */
+
+        private void ConfigureTabcmdConfigForUserSession(string user)
         {
             XmlDocument doc = new XmlDocument();
-            doc.Load(this.tabcmd_config_location + this.tabcmd_config_filename);
-
+            var tabcmdConfigFullFilePath = this.tabcmdConfigLocation + this.tabcmdConfigFilename;
+            this.Log("Trying to open config file for tabcmd at " + tabcmdConfigFullFilePath);
+            doc.Load(tabcmdConfigFullFilePath);
+            this.Log("Loaded the tabcmd config file");
             XmlWriterSettings xwsSettings = new XmlWriterSettings();
             xwsSettings.Indent = true;
             xwsSettings.IndentChars = " ";
 
             XmlNode root = doc.DocumentElement;
-           
+            this.Log("Reading the first elements of the XML");
             XmlNode uname = root.SelectSingleNode("username");
             uname.InnerText = user;
-            
+
             XmlNode baseUrl = root.SelectSingleNode("base-url");
-            baseUrl.InnerText = this.tableau_server_url;
-            
+            baseUrl.InnerText = this.TableauServerUrl;
+
             XmlNode sessionId = root.SelectSingleNode("session-id");
-            sessionId.InnerText = this.user_session_id;
-            
+            sessionId.InnerText = this.userSessionId;
+
             XmlNode authToken = root.SelectSingleNode("authenticity-token");
-            authToken.InnerText = this.user_auth_token;
+            authToken.InnerText = this.userAuthenticationToken;
 
             XmlNode sitePrefix = root.SelectSingleNode("site-prefix");
-            if (this._site.ToLower() != "default")
+            if (this.site.ToLower() != "default")
             {
-                sitePrefix.InnerText = String.Format("t/{0}", this._site);
+                sitePrefix.InnerText = String.Format("t/{0}", this.site);
             }
             else
             {
                 sitePrefix.InnerText = null;
             }
-            using (XmlWriter xwWriter = XmlWriter.Create(this.tabcmd_config_location + this.tabcmd_config_filename, xwsSettings))
+            this.Log("Writing the new XML file to replace the older one");
+            using (XmlWriter xwWriter = XmlWriter.Create(tabcmdConfigFullFilePath, xwsSettings))
             {
                 doc.PreserveWhitespace = true;
                 doc.Save(xwWriter);
@@ -361,23 +403,22 @@ namespace Behold_Emailer
         }
 
         // By querying the sessions table, there is a JSON string which includes the auth token
-        private void set_tabcmd_auth_info_from_repository_for_impersonation(string username_to_impersonate)
+        private void SetTabcmdAuthenticationInfoFromRepositoryForImpersonation(string usernameToImpersonate)
         {
-            
-            NpgsqlDataReader dr = this.repository.query_sessions(username_to_impersonate);
+            NpgsqlDataReader dr = this.Repository.QuerySessions(usernameToImpersonate);
             if (dr.HasRows == true)
             {
                 dr.Read();
-                this.user_session_id = dr.GetString(0);
+                this.userSessionId = dr.GetString(0);
                 string wg_json = dr.GetString(4);
+                this.Log(String.Format("{0} is userSessionId, {1}  is wg_json", this.userSessionId, wg_json));
                 var jsonReader = JsonReaderWriterFactory.CreateJsonReader(Encoding.UTF8.GetBytes(wg_json), new System.Xml.XmlDictionaryReaderQuotas());
                 var XmlDoc = new XmlDocument();
                 XmlDoc.Load(jsonReader);
                 XmlNode root = XmlDoc.DocumentElement;
                 XmlNode auth_token = root.SelectSingleNode("auth_token");
-                this.user_auth_token = auth_token.InnerText;
+                this.userAuthenticationToken = auth_token.InnerText;
             }
-            
             else
             {
                 // Throw some kind of exception because you didn't find any sessions for that user
@@ -386,22 +427,20 @@ namespace Behold_Emailer
             dr.Close();
         }
 
-        private void create_session_and_configure_tabcmd_for_user(string user, string view_location)
+        private void CreateSessionAndConfigureTabcmdForUser(string user, string viewLocation)
         {
-            TableauHTTP tabhttp = new TableauHTTP(this.tableau_server_url);
-            tabhttp.logger = this.logger;
-            if (tabhttp.create_trusted_ticket_session(view_location, user, this._site, ""))
+            TableauHTTP tabHttp = new TableauHTTP(this.TableauServerUrl);
+            tabHttp.Logger = this.Logger;
+            if (tabHttp.CreateTrustedTicketSession(viewLocation, user, this.site, ""))
             {
-                this.set_tabcmd_auth_info_from_repository_for_impersonation(user);
-                this.configure_tabcmd_config_for_user_session(user);
+                this.SetTabcmdAuthenticationInfoFromRepositoryForImpersonation(user);
+                this.ConfigureTabcmdConfigForUserSession(user);
             }
             else
             {
-                this.log("Trusted ticket session could not be established");
+                this.Log("Trusted ticket session could not be established");
             }
-  
         }
-
     }
 }
 
@@ -447,7 +486,6 @@ public static class Cmd
 
         // Start the process
         proc.Start();
-
 
         // The stream writer is replacing the keyboard as the input
         using (StreamWriter writer = proc.StandardInput)
@@ -523,6 +561,4 @@ public static class Cmd
 
         return message;
     }
-
 }
-

@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Collections.Specialized;
 
 namespace Behold_Emailer
 {
@@ -32,7 +26,6 @@ namespace Behold_Emailer
                 watermark_settings["image_location"] = wmImage.Text;
                 return watermark_settings;
             }
-
         }
 
         private void pickHeaderLogoLocation_Click(object sender, EventArgs e)
@@ -53,7 +46,5 @@ namespace Behold_Emailer
                 img.Dispose();
             }
         }
-
-
     }
 }

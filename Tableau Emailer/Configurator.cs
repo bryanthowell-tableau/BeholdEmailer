@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Collections;
+using System.Collections.Specialized;
 using System.Configuration;
-using System.Linq;
-using System.Text;
+using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using System.Xml;
-
 
 namespace Behold_Emailer
 {
-    class Configurator
+    internal class Configurator
     {
         public static void EncryptConfig()
         {
@@ -21,15 +17,14 @@ namespace Behold_Emailer
             ConfigurationSection c = config.GetSection("userSettings/Behold_Emailer.Properties.Settings");
             c.SectionInformation.AllowExeDefinition = ConfigurationAllowExeDefinition.MachineToLocalUser;
             c.SectionInformation.ProtectSection("DataProtectionConfigurationProvider");
-            
+
             //defaultSection.SectionInformation.ForceSave = true;
             config.Save(ConfigurationSaveMode.Full);
         }
 
         public static string GetConfig(string setting)
         {
-            return (string) Properties.Settings.Default[setting];
-            
+            return (string)Properties.Settings.Default[setting];
         }
 
         public static StringCollection GetConfigCollection(string setting)
@@ -42,10 +37,14 @@ namespace Behold_Emailer
             return (SerializableStringDictionary)Properties.Settings.Default[setting];
         }
 
+        public static bool GetConfigBool(string setting)
+        {
+            return (bool)Properties.Settings.Default[setting];
+        }
+
         public static void SetConfig(string setting, string val)
         {
             Properties.Settings.Default[setting] = val;
-            
         }
 
         public static void SetConfig(string setting, StringCollection vals)
@@ -58,14 +57,16 @@ namespace Behold_Emailer
             Properties.Settings.Default[setting] = vals;
         }
 
+        public static void SetConfig(string setting, bool val)
+        {
+            Properties.Settings.Default[setting] = val;
+        }
 
         public static void SaveConfig()
         {
             Configurator.EncryptConfig();
             Properties.Settings.Default.Save();
         }
-
-     
     }
 
     // From http://stackoverflow.com/questions/922047/store-dictionarystring-string-in-application-settings , https://weblogs.asp.net/pwelter34/444961
@@ -73,7 +74,6 @@ namespace Behold_Emailer
     {
         public SerializableStringDictionary()
         {
-
         }
 
         public XmlSchema GetSchema()
@@ -106,6 +106,4 @@ namespace Behold_Emailer
             }
         }
     }
-
-
 }

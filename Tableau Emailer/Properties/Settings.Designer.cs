@@ -12,7 +12,7 @@ namespace Behold_Emailer.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "10.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.7.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -301,6 +301,78 @@ namespace Behold_Emailer.Properties {
             }
             set {
                 this["smtp_server_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool save_emailed_copies_flag {
+            get {
+                return ((bool)(this["save_emailed_copies_flag"]));
+            }
+            set {
+                this["save_emailed_copies_flag"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("default")]
+        public string single_export_site {
+            get {
+                return ((string)(this["single_export_site"]));
+            }
+            set {
+                this["single_export_site"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string single_export_view_location {
+            get {
+                return ((string)(this["single_export_view_location"]));
+            }
+            set {
+                this["single_export_view_location"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string single_export_impersonate_as_user {
+            get {
+                return ((string)(this["single_export_impersonate_as_user"]));
+            }
+            set {
+                this["single_export_impersonate_as_user"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public string single_export_type_index {
+            get {
+                return ((string)(this["single_export_type_index"]));
+            }
+            set {
+                this["single_export_type_index"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool schedules_enabled {
+            get {
+                return ((bool)(this["schedules_enabled"]));
+            }
+            set {
+                this["schedules_enabled"] = value;
             }
         }
     }

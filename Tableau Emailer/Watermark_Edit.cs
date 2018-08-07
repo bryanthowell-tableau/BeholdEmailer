@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Collections.Specialized;
 
 namespace Behold_Emailer
 {
@@ -14,6 +8,7 @@ namespace Behold_Emailer
     {
         public bool existing_config;
         public string page_location;
+
         public Watermark_Edit(string page_location)
         {
             InitializeComponent();
@@ -21,7 +16,6 @@ namespace Behold_Emailer
             // Check if page location has an existing setting for this type
 
             // If so, load the info
-
         }
 
         public Watermark_Edit()
@@ -36,14 +30,14 @@ namespace Behold_Emailer
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            
             SerializableStringDictionary watermark_settings = new SerializableStringDictionary();
-            watermark_settings =  save_settings(watermark_settings);
+            watermark_settings = save_settings(watermark_settings);
             Configurator.SetConfig(this.page_location, watermark_settings);
             Configurator.SaveConfig();
             Label label = this.Owner.Controls.Find("label_" + page_location, true).FirstOrDefault() as Label;
             string new_label_text = "";
-            if (watermark_settings["watermark_type"] == "text"){
+            if (watermark_settings["watermark_type"] == "text")
+            {
                 new_label_text = "Text";
             }
             else if (watermark_settings["watermark_type"] == "image")
@@ -61,7 +55,8 @@ namespace Behold_Emailer
             this.Close();
         }
 
-        protected virtual SerializableStringDictionary save_settings(SerializableStringDictionary watermark_settings){
+        protected virtual SerializableStringDictionary save_settings(SerializableStringDictionary watermark_settings)
+        {
             return watermark_settings;
         }
     }

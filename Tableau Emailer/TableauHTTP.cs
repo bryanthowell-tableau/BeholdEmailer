@@ -1,45 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Net;
-using System.Diagnostics;
+
 namespace Behold_Emailer
 {
-    class TableauHTTP
+    internal class TableauHTTP
     {
-        string tableau_server_url;
-        public Logger logger;
+        public string TableauServerUrl;
+        public SimpleLogger Logger;
 
-        public TableauHTTP(string tableau_server_url)
+        public TableauHTTP(string tableauServerUrl)
         {
-            this.tableau_server_url = tableau_server_url;
-            this.logger = null;
+            this.TableauServerUrl = tableauServerUrl;
+            this.Logger = null;
         }
 
-        public void log(string l)
+        public void Log(string l)
         {
-            if (this.logger != null)
+            if (this.Logger != null)
             {
-                this.logger.Log(l);
+                this.Logger.Log(l);
             }
         }
 
-        public string get_trusted_ticket_for_user(string username, string site, string ip)
+        public bool CreateTrustedTicketSession(string viewContentUrlToRedeem, string username, string siteContentUrl, string ip)
         {
-            if (site == ""){ site = "default";}
-            this.log(String.Format("Requesting trusted ticket for {0} on site {1}", username, site));
-            
-            string trusted_url = this.tableau_server_url + "/trusted";
-            Debug.WriteLine(trusted_url);
+            string ticket = this.GetTrustedTicketForUser(username, siteContentUrl, ip);
+            //this.Log(String.Format("Trusted ticket returned {0}", ticket));
+            bool result = this.RedeemTrustedTicket(viewContentUrlToRedeem, ticket, siteContentUrl);
+            return result;
+        }
+
+        // This is a simple implementation of a Trusted Ticket request in C#
+        public string GetTrustedTicketForUser(string username, string siteContentUrl, string ip)
+        {
+            if (siteContentUrl == "") { siteContentUrl = "default"; }
+            this.Log(String.Format("Requesting trusted ticket for {0} on site {1}", username, siteContentUrl));
+
+            string trusted_url = this.TableauServerUrl + "/trusted";
+            this.Log(trusted_url);
             WebClient client = new WebClient();
-            
+
             byte[] response;
             try
             {
-                if (site == "default")
+                if (siteContentUrl == "default")
                 {
-                    response = client.UploadValues(trusted_url, new System.Collections.Specialized.NameValueCollection() 
+                    response = client.UploadValues(trusted_url, new System.Collections.Specialized.NameValueCollection()
                         {
                             { "username", username }
                         }
@@ -47,10 +53,10 @@ namespace Behold_Emailer
                 }
                 else
                 {
-                    response = client.UploadValues(trusted_url, new System.Collections.Specialized.NameValueCollection() 
+                    response = client.UploadValues(trusted_url, new System.Collections.Specialized.NameValueCollection()
                         {
-                            { "username", username },
-                            { "target_site", site }
+                            { "sername", username },
+                            { "target_site", siteContentUrl }
                         }
                     );
                 }
@@ -59,73 +65,66 @@ namespace Behold_Emailer
                 if (result == "-1")
                 {
                     // If you don't get -1, you should have a trusted ticket, raise an exception
-                    string error = String.Format("Trusted ticket for {0} on site {1} from server {2} returned -1, some error occurred", username, site, this.tableau_server_url);
-                    this.log(error);
+                    string error = String.Format("Trusted ticket for {0} on site {1} from server {2} returned -1, some error occurred", username, siteContentUrl, this.TableauServerUrl);
+                    this.Log(error);
                     throw new ConfigurationException(error);
-
                 }
                 // If misconfigured, the Tableau Server returns a redirect page
                 else if (result.Contains("html") == true)
                 {
                     // If you don't get -1, you should have a trusted ticket, raise an exception
-                    string error = String.Format("Trusted ticket for {0} on site {1} from server {2} returned the redirect page, some error occurred", username, site, this.tableau_server_url);
-                    this.log(error);
+                    string error = String.Format("Trusted ticket for {0} on site {1} from server {2} returned the redirect page, some error occurred", username, siteContentUrl, this.TableauServerUrl);
+                    this.Log(error);
                     throw new ConfigurationException(error);
                 }
 
-                this.log(String.Format("Trusted ticket for {0} on site {1} from server {2} returned {3}", username, site, this.tableau_server_url, result));
+                //this.Log(String.Format("Trusted ticket for {0} on site {1} from server {2} returned {3}", username, siteContentUrl, this.TableauServerUrl, result));
                 return result;
             }
             catch (WebException)
-            {   
+            {
                 throw new ConfigurationException("Trusted tickets not working, check configuration of Tableau Server and the configuration program");
             }
-            
         }
 
-        public bool redeem_trusted_ticket(string view_to_redeem, string trusted_ticket, string site){
-            if (site == "" || site.ToLower() == "default")
+        // Simple implementation of redeeming a trusted ticket, which should create a session
+        // Prior to Tableau Server 10.4, it was possible to retrieve the full session token from the Tableau Repository
+        // It might be possible to pull the full token in later versions from the cookie response, but it's unclear if that would let you access the session
+        // It is possible that you need tabadmin set features.ProtectVizPortalSessionIds false for this to work in 10.4 and later
+        public bool RedeemTrustedTicket(string viewContentUrlToRedeem, string trustedTicket, string siteContentUrl)
+        {
+            if (siteContentUrl == "" || siteContentUrl.ToLower() == "default")
             {
-                site = "default";
+                siteContentUrl = "default";
             }
-            string trusted_view_url = String.Format("{0}/trusted/{1}", this.tableau_server_url, trusted_ticket);
-            if (site.ToLower() != "default")
+            string trustedViewUrl = String.Format("{0}/trusted/{1}", this.TableauServerUrl, trustedTicket);
+            if (siteContentUrl.ToLower() != "default")
             {
-                trusted_view_url += String.Format("/t/{0}/views/{1}", site, view_to_redeem);
+                trustedViewUrl += String.Format("/t/{0}/views/{1}", siteContentUrl, viewContentUrlToRedeem);
             }
             else
             {
-                trusted_view_url += String.Format("/views/{0}", view_to_redeem);
+                trustedViewUrl += String.Format("/views/{0}", viewContentUrlToRedeem);
             }
 
             WebClient client = new WebClient();
             try
             {
-                this.log(String.Format("Redeeming trusted ticket via {0}", trusted_view_url));
-                byte[] response = client.DownloadData(trusted_view_url);
-                this.log(String.Format("Trusted ticket redeemed succesfully"));
+                this.Log(String.Format("Redeeming trusted ticket via {0}", trustedViewUrl));
+                byte[] response = client.DownloadData(trustedViewUrl);
+                this.Log(String.Format("Trusted ticket redeemed succesfully"));
                 return true;
             }
             catch (WebException ex)
             {
                 if (ex.Status == WebExceptionStatus.ProtocolError)
                 {
-                    var status_code = ((HttpWebResponse)ex.Response).StatusCode;
-                    var status_description = ((HttpWebResponse)ex.Response).StatusDescription;
-                    this.log(String.Format("Trusted ticket redemption failed with Status Code {0} and Description {1}", status_code, status_description));
-
-                } 
+                    var statusCode = ((HttpWebResponse)ex.Response).StatusCode;
+                    var statusDescription = ((HttpWebResponse)ex.Response).StatusDescription;
+                    this.Log(String.Format("Trusted ticket redemption failed with Status Code {0} and Description {1}", statusCode, statusDescription));
+                }
                 return false;
             }
-
-        }
-
-        public bool create_trusted_ticket_session(string view_to_redeem, string username, string site, string ip)
-        {
-            string ticket = this.get_trusted_ticket_for_user(username, site, ip);
-            this.log(String.Format("Trusted ticket returned {0}", ticket));
-            bool result = this.redeem_trusted_ticket(view_to_redeem, ticket, site);
-            return result;
         }
     }
 }

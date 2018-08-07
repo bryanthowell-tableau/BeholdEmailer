@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Behold_Emailer
@@ -28,8 +22,8 @@ namespace Behold_Emailer
         {
             sendProgress.Value = progress_length;
             okButton.Visible = true;
-            
         }
+
         public void update_status(string new_status)
         {
             statusLabel.Text = new_status;
@@ -37,12 +31,10 @@ namespace Behold_Emailer
 
         private void statusLabel_Click(object sender, EventArgs e)
         {
-
         }
 
         private void sendEmail_FinishedLoading(object sender, EventArgs e)
         {
-
         }
     }
 }
