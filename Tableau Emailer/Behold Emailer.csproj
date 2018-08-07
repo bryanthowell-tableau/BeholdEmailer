@@ -245,9 +245,6 @@
     <None Include="Readme.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <Content Include="Readme.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="sendemail_actiongray_16x_XzY_icon.ico" />
   </ItemGroup>
   <ItemGroup>

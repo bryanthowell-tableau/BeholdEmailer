@@ -5,7 +5,7 @@ using System.Data;
 using System.IO;
 using System.Net.Mail;
 using System.Net.Mime;
-
+using System.Windows.Forms;
 namespace Behold_Emailer
 {
     internal class BeholdEmailer
@@ -18,6 +18,7 @@ namespace Behold_Emailer
         public string TextEmailTemplateFilename { get; set; }
         public SimpleLogger Logger;
         public string ExportArchiveFolderPath;
+        public bool SaveEmailsToArchive;
 
         // Original constructor created the tabcmd object
         public BeholdEmailer(string tabcmdDirectory, string tabcmdConfigLocation, string repositoryPassword, string tableauServerUrl,
@@ -32,7 +33,23 @@ namespace Behold_Emailer
 
             this.Tabcmd = new Tabcmd(tabcmdDirectory, tableauServerUrl, tableauServerAdminUsername, tableauServerAdminPassword, "default", repositoryPassword, tabcmdConfigLocation);
             this.Logger = null;
-            this.ExportArchiveFolderPath = null;
+            if (Configurator.GetConfigBool("save_emailed_copies_flag"))
+            {
+                SaveEmailsToArchive = Configurator.GetConfigBool("save_emailed_copies_flag");
+            }
+
+            if (!String.IsNullOrEmpty(Configurator.GetConfig("export_archive_folder")))
+            {
+                this.ExportArchiveFolderPath = Configurator.GetConfig("export_archive_folder");
+            }
+            // Cancel action if no archive folder exists
+            else
+            {
+                MessageBox.Show("Please configure the local save folder", "No Local Configuration",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new ConfigurationException("Please configure the local save folder");
+            }
+            
         }
 
         // If you create the tabcmd object separately you could put it
@@ -45,6 +62,23 @@ namespace Behold_Emailer
             this.TextEmailTemplateFilename = "";
             this.Logger = null;
             this.ExportArchiveFolderPath = null;
+
+            if (Configurator.GetConfigBool("save_emailed_copies_flag"))
+            {
+                SaveEmailsToArchive = Configurator.GetConfigBool("save_emailed_copies_flag");
+            }
+
+            if (!String.IsNullOrEmpty(Configurator.GetConfig("export_archive_folder")))
+            {
+                this.ExportArchiveFolderPath = Configurator.GetConfig("export_archive_folder");
+            }
+            // Cancel action if no archive folder exists
+            else
+            {
+                MessageBox.Show("Please configure the local save folder", "No Local Configuration",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new ConfigurationException("Please configure the local save folder");
+            }
         }
 
         // In this situation you create the tabcmd and smtpClient objects separately
@@ -57,6 +91,23 @@ namespace Behold_Emailer
             this.TextEmailTemplateFilename = "";
             this.Logger = null;
             this.ExportArchiveFolderPath = null;
+
+            if (Configurator.GetConfigBool("save_emailed_copies_flag"))
+            {
+                SaveEmailsToArchive = Configurator.GetConfigBool("save_emailed_copies_flag");
+            }
+
+            if (!String.IsNullOrEmpty(Configurator.GetConfig("export_archive_folder")))
+            {
+                this.ExportArchiveFolderPath = Configurator.GetConfig("export_archive_folder");
+            }
+            // Cancel action if no archive folder exists
+            else
+            {
+                MessageBox.Show("Please configure the local save folder", "No Local Configuration",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new ConfigurationException("Please configure the local save folder");
+            }
         }
 
         // Placeholder here for Constructor for Emailer 2.0 which uses the REST API connection instead of tabcmd
@@ -199,11 +250,9 @@ namespace Behold_Emailer
                 timestamp = timestamp.Replace(":", "_");
                 timestamp = timestamp.Replace("-", "_");
                 string finalFilename = String.Format("{0} - {1} - {2}.{3}", emailSubject, viewUsername, timestamp, fileEnding[fileEnding.Length - 1]);
-                if (this.ExportArchiveFolderPath != null)
-                {
-                    finalFilename = this.ExportArchiveFolderPath + finalFilename;
-                    this.Log(String.Format("Achiving export to {0}", finalFilename));
-                }
+
+                finalFilename = this.ExportArchiveFolderPath + finalFilename;
+                this.Log(String.Format("Achiving export to {0}", finalFilename));
 
                 File.Copy(filenameToAttach, finalFilename, true);
 
@@ -213,7 +262,7 @@ namespace Behold_Emailer
                 File.Delete(filenameToAttach);
 
                 // Cleanup if no archive
-                if (this.ExportArchiveFolderPath == "")
+                if (!SaveEmailsToArchive)
                 {
                     this.Log(String.Format("Removing e-mailed file {0}", finalFilename));
                     File.Delete(finalFilename);
