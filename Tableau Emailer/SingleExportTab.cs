@@ -49,6 +49,11 @@ namespace Behold_Emailer
 
         private string GenerateSingleExport(string exportSite, string exportUsername, string exportViewLocation, string exportAttachmentType, string exportFilename)
         {
+            return GenerateSingleExport(exportSite, exportUsername, exportViewLocation, exportAttachmentType, exportFilename, new Dictionary<string, string>());
+        }
+
+        private string GenerateSingleExport(string exportSite, string exportUsername, string exportViewLocation, string exportAttachmentType, string exportFilename, Dictionary<string, string> viewFilterDictionary)
+        {
             // Generate Single File
             try
             {
@@ -80,7 +85,7 @@ namespace Behold_Emailer
                 }
 
                 string filename = tabemailer.GenerateExportAndWatermark(exportUsername, exportViewLocation,
-                   exportAttachmentType, new Dictionary<string, string>(), wm);
+                   exportAttachmentType, viewFilterDictionary, wm);
                 string[] fileEnding = filename.Split('.');
 
                 string finalFilename = String.Format("{0}{1}.{2}", Configurator.GetConfig("export_archive_folder"), exportFilename, fileEnding[fileEnding.Length - 1]);

@@ -36,6 +36,7 @@
             this.singleExportSite = new System.Windows.Forms.TextBox();
             this.refreshSchedulesButton = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
+            this.powerPointExportFileName = new System.Windows.Forms.TextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -81,6 +82,16 @@
             this.disableSchedulesRadioButton = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
             this.availableSchedulesList = new System.Windows.Forms.CheckedListBox();
+            this.powerPointTab = new System.Windows.Forms.TabPage();
+            this.loadPowerPointListFile = new System.Windows.Forms.Button();
+            this.label10 = new System.Windows.Forms.Label();
+            this.powerPointUserToGenerateAs = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.powerPointStatusView = new System.Windows.Forms.DataGridView();
+            this.updatePowerPointButton = new System.Windows.Forms.Button();
+            this.powerPointFilename = new System.Windows.Forms.TextBox();
+            this.pickPowerPointTemplateButton = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.activityGrid = new System.Windows.Forms.DataGridView();
             this.Timestamp = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -88,6 +99,8 @@
             this.Message = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.batchCsvPicker = new System.Windows.Forms.OpenFileDialog();
             this.actionQueueBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            this.powerPointTemplatePicker = new System.Windows.Forms.OpenFileDialog();
+            this.powerPointListPicker = new System.Windows.Forms.OpenFileDialog();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -99,6 +112,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.bulkEmailPreview)).BeginInit();
             this.schedulesTab.SuspendLayout();
             this.runSchedulesGroupBox.SuspendLayout();
+            this.powerPointTab.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.powerPointStatusView)).BeginInit();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.activityGrid)).BeginInit();
             this.SuspendLayout();
@@ -156,6 +171,14 @@
             this.toolTip1.SetToolTip(this.label5, "Site Content URL is the portion of the Tableau Server URL\r\nthat names the site. F" +
         "or example:\r\nhttp://mytableauserver.domain.com/site/my_site/projects\r\n\r\n\"my_site" +
         "\" would be the Site Content URL");
+            // 
+            // powerPointExportFileName
+            // 
+            this.powerPointExportFileName.Location = new System.Drawing.Point(298, 31);
+            this.powerPointExportFileName.Name = "powerPointExportFileName";
+            this.powerPointExportFileName.Size = new System.Drawing.Size(178, 22);
+            this.powerPointExportFileName.TabIndex = 84;
+            this.toolTip1.SetToolTip(this.powerPointExportFileName, "Do not include the file extension (.pdf), it will be added automatically");
             // 
             // menuStrip1
             // 
@@ -290,6 +313,7 @@
             this.mainTabBar.Controls.Add(this.singleExportTab);
             this.mainTabBar.Controls.Add(this.batchExportTab);
             this.mainTabBar.Controls.Add(this.schedulesTab);
+            this.mainTabBar.Controls.Add(this.powerPointTab);
             this.mainTabBar.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.mainTabBar.Location = new System.Drawing.Point(6, 0);
             this.mainTabBar.Multiline = true;
@@ -531,7 +555,6 @@
             this.pickBulkCSVFile.TabIndex = 61;
             this.pickBulkCSVFile.Text = "Load from CSV";
             this.pickBulkCSVFile.UseVisualStyleBackColor = true;
-            this.pickBulkCSVFile.Click += new System.EventHandler(this.pickBulkCSVFile_Click);
             // 
             // sendBatchEmails
             // 
@@ -628,6 +651,114 @@
             this.availableSchedulesList.TabIndex = 0;
             this.availableSchedulesList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.availableSchedulesList_ItemChecked);
             // 
+            // powerPointTab
+            // 
+            this.powerPointTab.Controls.Add(this.loadPowerPointListFile);
+            this.powerPointTab.Controls.Add(this.powerPointExportFileName);
+            this.powerPointTab.Controls.Add(this.label10);
+            this.powerPointTab.Controls.Add(this.powerPointUserToGenerateAs);
+            this.powerPointTab.Controls.Add(this.label8);
+            this.powerPointTab.Controls.Add(this.label9);
+            this.powerPointTab.Controls.Add(this.powerPointStatusView);
+            this.powerPointTab.Controls.Add(this.updatePowerPointButton);
+            this.powerPointTab.Controls.Add(this.powerPointFilename);
+            this.powerPointTab.Controls.Add(this.pickPowerPointTemplateButton);
+            this.powerPointTab.Location = new System.Drawing.Point(4, 25);
+            this.powerPointTab.Name = "powerPointTab";
+            this.powerPointTab.Padding = new System.Windows.Forms.Padding(3);
+            this.powerPointTab.Size = new System.Drawing.Size(768, 332);
+            this.powerPointTab.TabIndex = 10;
+            this.powerPointTab.Text = "PowerPoint";
+            this.powerPointTab.UseVisualStyleBackColor = true;
+            // 
+            // loadPowerPointListFile
+            // 
+            this.loadPowerPointListFile.Location = new System.Drawing.Point(476, 251);
+            this.loadPowerPointListFile.Name = "loadPowerPointListFile";
+            this.loadPowerPointListFile.Size = new System.Drawing.Size(116, 54);
+            this.loadPowerPointListFile.TabIndex = 86;
+            this.loadPowerPointListFile.Text = "Load from CSV";
+            this.loadPowerPointListFile.UseVisualStyleBackColor = true;
+            this.loadPowerPointListFile.Click += new System.EventHandler(this.pickPowerpointInputFile_Click);
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(295, 12);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(111, 16);
+            this.label10.TabIndex = 85;
+            this.label10.Text = "Export File Name";
+            this.label10.Click += new System.EventHandler(this.label10_Click);
+            // 
+            // powerPointUserToGenerateAs
+            // 
+            this.powerPointUserToGenerateAs.Location = new System.Drawing.Point(495, 31);
+            this.powerPointUserToGenerateAs.Name = "powerPointUserToGenerateAs";
+            this.powerPointUserToGenerateAs.Size = new System.Drawing.Size(235, 22);
+            this.powerPointUserToGenerateAs.TabIndex = 82;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(492, 12);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(270, 16);
+            this.label8.TabIndex = 83;
+            this.label8.Text = "Username to Generate Exports As (optional)";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(6, 12);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(216, 16);
+            this.label9.TabIndex = 81;
+            this.label9.Text = "PowerPoint Template File Location";
+            // 
+            // powerPointStatusView
+            // 
+            this.powerPointStatusView.AllowUserToAddRows = false;
+            this.powerPointStatusView.AllowUserToDeleteRows = false;
+            this.powerPointStatusView.BackgroundColor = System.Drawing.SystemColors.ControlLightLight;
+            this.powerPointStatusView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.powerPointStatusView.Location = new System.Drawing.Point(2, 93);
+            this.powerPointStatusView.Name = "powerPointStatusView";
+            this.powerPointStatusView.ReadOnly = true;
+            this.powerPointStatusView.ShowEditingIcon = false;
+            this.powerPointStatusView.Size = new System.Drawing.Size(762, 151);
+            this.powerPointStatusView.TabIndex = 79;
+            this.powerPointStatusView.Visible = false;
+            // 
+            // updatePowerPointButton
+            // 
+            this.updatePowerPointButton.Location = new System.Drawing.Point(598, 250);
+            this.updatePowerPointButton.Name = "updatePowerPointButton";
+            this.updatePowerPointButton.Size = new System.Drawing.Size(164, 55);
+            this.updatePowerPointButton.TabIndex = 78;
+            this.updatePowerPointButton.Text = "Fill in PowerPoint Template";
+            this.updatePowerPointButton.UseVisualStyleBackColor = true;
+            this.updatePowerPointButton.Click += new System.EventHandler(this.fillInPowerpoint_Click);
+            // 
+            // powerPointFilename
+            // 
+            this.powerPointFilename.Location = new System.Drawing.Point(9, 31);
+            this.powerPointFilename.Name = "powerPointFilename";
+            this.powerPointFilename.Size = new System.Drawing.Size(271, 22);
+            this.powerPointFilename.TabIndex = 77;
+            // 
+            // pickPowerPointTemplateButton
+            // 
+            this.pickPowerPointTemplateButton.Location = new System.Drawing.Point(116, 59);
+            this.pickPowerPointTemplateButton.Name = "pickPowerPointTemplateButton";
+            this.pickPowerPointTemplateButton.Size = new System.Drawing.Size(164, 28);
+            this.pickPowerPointTemplateButton.TabIndex = 62;
+            this.pickPowerPointTemplateButton.Text = "Browse Template File";
+            this.pickPowerPointTemplateButton.UseVisualStyleBackColor = true;
+            this.pickPowerPointTemplateButton.Click += new System.EventHandler(this.pickPowerPointFileButton_Click);
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.activityGrid);
@@ -716,6 +847,9 @@
             this.schedulesTab.PerformLayout();
             this.runSchedulesGroupBox.ResumeLayout(false);
             this.runSchedulesGroupBox.PerformLayout();
+            this.powerPointTab.ResumeLayout(false);
+            this.powerPointTab.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.powerPointStatusView)).EndInit();
             this.groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.activityGrid)).EndInit();
             this.ResumeLayout(false);
@@ -782,6 +916,19 @@
         private System.Windows.Forms.GroupBox runSchedulesGroupBox;
         private System.Windows.Forms.RadioButton disableSchedulesRadioButton;
         private System.Windows.Forms.RadioButton enableSchedulesRadioButton;
+        private System.Windows.Forms.TabPage powerPointTab;
+        private System.Windows.Forms.Button pickPowerPointTemplateButton;
+        private System.Windows.Forms.OpenFileDialog powerPointTemplatePicker;
+        private System.Windows.Forms.TextBox powerPointFilename;
+        private System.Windows.Forms.Button updatePowerPointButton;
+        private System.Windows.Forms.TextBox powerPointExportFileName;
+        private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.TextBox powerPointUserToGenerateAs;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.DataGridView powerPointStatusView;
+        private System.Windows.Forms.Button loadPowerPointListFile;
+        private System.Windows.Forms.OpenFileDialog powerPointListPicker;
     }
 }
 

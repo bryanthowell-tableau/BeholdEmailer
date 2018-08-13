@@ -9,6 +9,7 @@ It expands Tableau Server's native capabilities with regards to exporting and e-
 
 When exporting to PDF, Tableau Server will export a Worksheet that has scrolling information in full. If that Worksheet is included within a Dashboard, the export of that Dashboard will only show the visible rows. To create Dashboards that can export all of their data, you'll need to make the underlying scrolling Worksheets visible tabs, typically placed right after the Dashboard, and export using the FULLPDF option (or simply choose the Worksheet, rather than the dashboard).
 
+
 Because there is only one tabcmd configuration file for the system, all actions are Queued into an Activity Queue. Different actions within the application (pressing the Export button, or a schedule time threshold passing) will add that Action into the Action Queue. Then the queue begins working until all actions have been cleared. 
 
 The interface include a main screen with the following main elements:
@@ -17,7 +18,8 @@ The interface include a main screen with the following main elements:
 2. Single Export Tab
 3. Batch Export Tab
 4. Tableau Server Schedules Tab
-5. Activity Log Pane
+5. PowerPoint Tab
+6. Activity Log Pane
 
 ## Configuration Menu
 All main shared configurations are accessed in the **Configure** menu. Each menu option handles the configuration of a different component of the Behold! Emailer toolchain.
@@ -125,6 +127,29 @@ If you have added any new schedules in Tableau Server, you may want to hit the "
 When the **Monitor and Run Schedules** radio button is set to "Enabled", a monitor process will fires off on the :01, the :16, the :31 and the :46 minute of the hour. Since the Tableau Server subscription options are 15 minute increments at the smallest, this will capture any next subscription to send. 
 
 All of the scheduled e-mail schedules are stored in a text file named "active_schedules.csv" so that information will persist even if you have to restart the program. When a schedule is ready to be run, it will be queued into the Actions queue at the top of the queue. 
+
+## PowerPoint Tab
+Behold! Emailer has a "find and replace" for PowerPoint files, where you can specify the slide number which has an image and the view from Tableau Server that you want to replace it.
+
+On the **PowerPoint** tab, press the **Browse Template File** button to find the PPTX file you want to do the Find & Replace activity on. Rules for the file:
+- A slide must already have one, and only one, image on it for replacement to work correctly
+- It must be PPTX, not PPT. That change happened 11 years ago now.
+
+Specify the filename you want the new file to be called, *without* the .pptx extension at the end. 
+
+Ex. "My Great New File"
+
+**NOT** "My Great New File.pptx". 
+
+Then create a CSV file which specifies the Slide Numbers (starting at 1) and the location to pull from. This resembles the Batch Export format:
+
+`Slide Number,Site,View Location,Filter Field Name 1,Filter Values 1,Filter Field Name 2,Filter Values 2,Filter Name 3,Filter Values 3
+5,default,BasicSuperstoreSQLServer/Sheet1,Category,Technology;Office Supplies,YEAR(Order Date),2013;2014,,
+6,default,BasicSuperstoreSQLServer/Sheet1,Category,Furniture,YEAR(Order Date),2013;2014,,`
+
+Load the CSV using the **Load from CSV** button, then press **Fill In PowerPoint Template** button. You'll see the status as it works through each slide and eventually the process will complete.
+
+Now you have an updated PowerPoint presentation to deliver. Please remember to remind whoever is using that PPTX file that they could and should be using Tableau directly for deeper analysis on the fly.
 
 ## Activity Log Pane
 The Activity Log pane at the bottom of the main screen lists out actions that happen. It is not as verbose as the log file itself, and may reference that you should check the log file if something bad happens. 
