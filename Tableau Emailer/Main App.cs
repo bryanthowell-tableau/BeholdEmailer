@@ -472,6 +472,19 @@ namespace Behold_Emailer
             sendBatchEmails.Enabled = true;
         }
 
+        public void EnablePowerpointButtons()
+        {
+            loadPowerPointListFile.BeginInvoke(new PowerpointButtonsDelegate(PowerpointButtonsEnableMethod));
+        }
+
+        public delegate void PowerpointButtonsDelegate();
+
+        public void PowerpointButtonsEnableMethod()
+        {
+            loadPowerPointListFile.Enabled = true;
+            updatePowerPointButton.Enabled = true;
+        }
+
         private void ValidateTextBox(object sender, CancelEventArgs e)
         {
             TextBox t = (TextBox)sender;
@@ -652,5 +665,26 @@ namespace Behold_Emailer
                 }
             }
         }
+
+        private void pickPowerPointFileButton_Click(object sender, EventArgs e)
+        {
+            DialogResult result = powerPointTemplatePicker.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                string filename = powerPointTemplatePicker.FileName;
+                this.powerPointFilename.Text = filename;
+            }
+        }
+
+        private void updatePowerPointButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label10_Click(object sender, EventArgs e)
+        {
+
+        }
+
     }
 }

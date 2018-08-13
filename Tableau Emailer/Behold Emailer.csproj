@@ -93,6 +93,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PowerpointTab.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="BatchExportTab.cs">
       <SubType>Form</SubType>
     </Compile>

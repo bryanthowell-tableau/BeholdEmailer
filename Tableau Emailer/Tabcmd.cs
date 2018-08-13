@@ -297,6 +297,8 @@ namespace Behold_Emailer
                 this.CreateSessionAndConfigureTabcmdForUser(usernameToImpersonate, viewLocation);
             }
 
+            this.Logger.Log(String.Format("View Filter Mapping has {0}",viewFilterMapping.Count));
+
             string[] cmds = new string[2];
             cmds[0] = this.BuildDirectoryChangeCommand();
 
