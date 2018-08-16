@@ -685,6 +685,5 @@ namespace Behold_Emailer
         {
 
         }
-
     }
 }

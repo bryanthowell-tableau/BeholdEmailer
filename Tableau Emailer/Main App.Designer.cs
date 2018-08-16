@@ -555,6 +555,7 @@
             this.pickBulkCSVFile.TabIndex = 61;
             this.pickBulkCSVFile.Text = "Load from CSV";
             this.pickBulkCSVFile.UseVisualStyleBackColor = true;
+            this.pickBulkCSVFile.Click += new System.EventHandler(this.pickBulkCSVFile_Click);
             // 
             // sendBatchEmails
             // 
